@@ -1,14 +1,15 @@
 import { Modal, Input } from 'antd'
 import { useEffect } from 'react'
-import { setSessionCookie, getSessionCookie } from '../store/session'
+import { setSessionCookie, getSessionCookie } from '../../store/session'
 export function NewStoryModal(props){
     const { 
         isModalVisible, 
         setIsModalVisible, 
         storyName, 
         setStoryName,
-        hasStoryName,
-        setHasStoryName 
+        setHasStoryName,
+        onSuccess,
+        onError 
     } = props
 
     useEffect(()=>{
@@ -18,19 +19,21 @@ export function NewStoryModal(props){
     const handleOk = () => {
         if(storyName !== ''){
             setHasStoryName(true)
-            setSessionCookie({name: storyName})
+            setSessionCookie('name', storyName)
             .then(async res => {
                 if(res.isSuccess){
-                    const session = await getSessionCookie()
-                    if(session.name){
+                    const name = getSessionCookie('name')
+                    if(name !== undefined){
                         setIsModalVisible(false)
-                        console.log('Session : ',session)
+                        onSuccess()
                     }
+                }else{
+                    onError()
                 }
             })
             .catch(err => {
                 if(!err.isSuccess){
-                    alert('Create New Story Error')
+                    onError()
                 }
             })
         }
@@ -43,12 +46,14 @@ export function NewStoryModal(props){
     }
     return(
         <Modal
-            title="Add New Story"
+            title="เพิ่มเรื่องใหม่"
             visible={isModalVisible}
             onOk={handleOk}
             onCancel={handleCancel}
+            okText={'ตกลง'}
+            cancelText={'ยกเลิก'}
         >
-            Name: <Input onChange={handleStoryNameChange} value={storyName} />
+            ชื่อเรื่อง <Input onChange={handleStoryNameChange} value={storyName} />
         </Modal>
     )
 }

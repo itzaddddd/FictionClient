@@ -2,8 +2,9 @@ import { Card, Typography, Modal } from 'antd'
 import styled from 'styled-components'
 import { useHistory } from 'react-router-dom'
 import { useState } from 'react'
-import { NewStoryModal } from './newStory'
-import { getSessionCookie ,resetSessionCookie } from '../store/session'
+import { NewStoryModal } from './modal/newStory'
+import { ResetModal } from './modal/reset'
+import { getSessionCookie ,resetSessionCookie, clearSessionCookie } from '../store/session'
 
 const { Title } = Typography
 const TitleStyle = styled(Title)`
@@ -59,37 +60,58 @@ const StoryName = styled(Card)`
     background-color: #eed9fa;
     border-radius: 0.5em;
 `
-export function Home() {
+export const Home = () => {
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [hasStoryName, setHasStoryName] = useState(false)
     const [storyName, setStoryName] = useState('')
+    const [isResetModalVisible, setIsResetModalVisible] = useState(false)
     const history = useHistory()
-    const session = getSessionCookie()
+    const name = JSON.parse(getSessionCookie('name'))
 
     const showModal = () => {
         setIsModalVisible(true)
     }
 
-    const onSuccessModal = () => {
+    const onNewStorySuccessModal = () => {
         Modal.success({
-            content: 'Already Reset Session!',
-            onOk: () => {history.push('/')}
+            title: 'สร้างเรื่องใหม่สำเร็จ',
+            content: `เรื่อง : ${storyName}`,
+            okText: 'ตกลง'
         })
     }
 
-    const onErrorModal = () => {
+    const onNewStoryErrorModal = () => {
         Modal.error({
-            content: 'Reset Session Error'
+            content: 'เกิดข้อผิดพลาดขณะสร้างเรื่องใหม่',
+            okText: 'ตกลง'
+        })
+    }
+
+    const onResetSuccessModal = () => {
+        Modal.success({
+            content: 'ล้างข้อมูลสำเร็จ!',
+            onOk: () => history.push('/'),
+            okText: 'ตกลง'
+        })
+    }
+
+    const onResetErrorModal = () => {
+        Modal.error({
+            content: 'เกิดข้อผิดพลาดในการล้างข้อมูล',
+            onOk: () => history.push('/'),
+            okText: 'ตกลง'
         })
     }
 
     const onReset = () => {
-        resetSessionCookie()
+        clearSessionCookie()
         .then( res => {
-            if(res.isReset){
-                onSuccessModal()
+            if(res.isClear){
+                setStoryName('')
+                setHasStoryName(false)
+                onResetSuccessModal()
             }else{
-                onErrorModal()
+                onResetErrorModal()
             }
         })
         .catch( err => {
@@ -102,46 +124,46 @@ export function Home() {
         <Topic>
             <TitleStyle style={{fontSize:'2.5vw',color: 'white'}}>FICTION GENE</TitleStyle>
         </Topic>
-        { session.name ?
-        <StoryName>Story Name : {session.name}</StoryName>
+        { name ?
+        <StoryName>ชื่อเรื่อง : {name}</StoryName>
         :
-        <StoryName>Please add new story</StoryName>
+        <StoryName>กรุณาเพิ่มเรื่องใหม่</StoryName>
         }
         <GroupMenu>
-            { session.name ?
+            { name ?
             <MenuItem style={{backgroundColor:'#d3d3d3', color:'black'}}>
-                New Story
+                เพิ่มเรื่องใหม่
             </MenuItem>
             :
             <MenuItem onClick={showModal} style={{backgroundColor:'#4d0e72'}} hoverable>
-                New Story
+                เพิ่มเรื่องใหม่
             </MenuItem>
             }
-            { session.name ?
-            <MenuItem onClick={()=>history.push('/result')} style={{backgroundColor:'#8017bd'}} hoverable>
-                View Story
-            </MenuItem>
-            :
-            <MenuItem style={{backgroundColor:'#d3d3d3', color:'black'}}>
-                View Story
-            </MenuItem>
-            }
-            { session.name ?
-            <MenuItem onClick={()=>history.push('/add')} style={{backgroundColor:'#aa42e8'}} hoverable>
-                Add Chapter
+            { name ?
+            <MenuItem onClick={()=>history.push('/add')} style={{backgroundColor:'#8017bd'}} hoverable>
+                เพิ่มตอน
             </MenuItem>
             :
             <MenuItem style={{backgroundColor:'#d3d3d3',color: 'black'}}>
-                Add Chapter
+                เพิ่มตอน
             </MenuItem>
             }
-            { session.name ?
-            <MenuItem onClick={onReset} style={{backgroundColor:'#cc8df1'}} hoverable>
-                Reset
+            { name ?
+            <MenuItem onClick={()=>history.push('/result')} style={{backgroundColor:'#aa42e8'}} hoverable>
+                แสดงผลลัพธ์
+            </MenuItem>
+            :
+            <MenuItem style={{backgroundColor:'#d3d3d3', color:'black'}}>
+                แสดงผลลัพธ์
+            </MenuItem>
+            }
+            { name ?
+            <MenuItem onClick={setIsResetModalVisible} style={{backgroundColor:'#cc8df1'}} hoverable>
+                ล้างข้อมูล
             </MenuItem>
             :
             <MenuItem style={{backgroundColor:'#d3d3d3',color:'black'}}>
-                Reset
+                ล้างข้อมูล
             </MenuItem>
             }
         </GroupMenu>
@@ -152,6 +174,13 @@ export function Home() {
             setStoryName={setStoryName}
             hasStoryName={hasStoryName}
             setHasStoryName={setHasStoryName}
+            onSuccess={onNewStorySuccessModal}
+            onError={onNewStoryErrorModal}
+        />
+        <ResetModal 
+            isResetModalVisible={isResetModalVisible} 
+            setIsResetModalVisible={setIsResetModalVisible} 
+            onReset={onReset}
         />
         
     </>

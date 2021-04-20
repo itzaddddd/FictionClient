@@ -1,8 +1,12 @@
 import styled from 'styled-components'
-import { Card, Typography, Form, Input, Button } from 'antd'
+import { Card, Typography, Form, Input, Button, Collapse, Modal } from 'antd'
+import { useState, useEffect } from 'react'
+import { setSessionCookie, getSessionCookie} from '../store/session'
+import Axios from 'axios'
 
-const { Title, Text } = Typography
+const { Title } = Typography
 const { TextArea } = Input
+const { Panel } = Collapse
 
 const TitleStyle = styled(Title)`
     text-align: center;
@@ -38,10 +42,116 @@ const FormControlStyle = styled(Form.Item)`
         }
     }
 `
-export function AddChapter(){
+
+const CollapseStyle = styled(Collapse)`
+    width: 60%;
+    margin: 0 auto;
+    margin-top: 5em;
+    margin-bottom: 5em;
+    border-radius: 1em;
     
+`
+
+const PanelStyle = styled(Panel)`
+    font-size: 1.5em;
+    color: red;
+` 
+const text = `
+        เดือนห้าหน้าร้อน อาวรณ์หัวใจเจียนบ้า ฟังเสียงเพลงครวญหาจำปา ที่ทิ้งบ้านนาเข้ามาบางกอก
+        น้องขออภัย หนีไปแล้วไม่ได้บอก เจ้าจำปาอยากหาทางออก อยู่บ้านนอกมันเบื่อหลังควาย
+        มาอยู่เมืองหลวง โดนลวงหัวใจสะบั้น น้องได้เป็นสะใภ้นายพัน เพียงสี่ห้าวันแล้วเขาก็หน่าย
+        ซ้ำถูกประณาม หยามตัวเหมือนวัวเหมือนควาย โอ้เดือนหกฝนตกโปรยปราย น้องนอนร้องไห้คิดถึงสุพรรณ
+        
+    `
+
+const chapterData = [
+    {
+        index: 1,
+        text: text 
+    },
+    {
+        index: 2,
+        text: text 
+    },
+    {
+        index: 3,
+        text: text 
+    },
+    {
+        index: 4,
+        text: text 
+    },
+    {
+        index: 5,
+        text: text 
+    }
+]
+export function AddChapter(){
+    const [isSubmit, setIsSubmit] = useState(false)
+    const [content, setContent] = useState(JSON.parse(getSessionCookie('content')))
+    const [hasContent, setHasContent] = useState(false)
+
+    useEffect(()=>{
+        if(isSubmit){
+            onAddSuccess()        
+        }
+    },[isSubmit])
+    useEffect(() => {
+        if(content){
+            setHasContent(true)
+            console.log('Effect Content : ',JSON.parse(content))
+            Axios({
+                method: 'POST',
+                url: '/fic',
+                data: {input: parseFloat((JSON.parse(content)[0].text))}
+            }) 
+            .then( res => {
+                console.log('Res : ',res.data.data)
+                const predict = res.data.data
+                setSessionCookie('result', predict)
+                .then(res => {
+                    console.log('Predict Complete')
+                })
+                .catch(err => {
+                    console.log(err)
+                    alert(err)
+                })
+            })
+            .catch( err => {
+                console.log('Err : ',err)
+            })
+        }
+    },[content])
     const onFinish = values => {
-        console.log(values)
+        const currentData = JSON.parse(getSessionCookie('content'))
+        let dataArray = []
+        if(currentData){
+            dataArray = JSON.parse(currentData)
+            const newData = {
+                index: dataArray.length+1,
+                text: values.content
+            }
+            dataArray.push(newData)
+        }else{
+            const newData = {
+                index: 1,
+                text: values.content
+            }
+            dataArray.push(newData)
+        }
+        const dataArrayStr = JSON.stringify(dataArray)
+        setSessionCookie('content', dataArrayStr)
+        .then(async resp => {
+            if(resp.isSuccess){
+                const content = getSessionCookie('content')
+                if(content){
+                    const jsonContent = JSON.parse(content)
+                    setContent(jsonContent)
+                }
+            }
+        })
+        .catch(err => console.log('Error: ',err))
+        setIsSubmit(true)
     }
 
     const onFinishFailed = error => {
@@ -53,10 +163,31 @@ export function AddChapter(){
     }
 
     const [form] = Form.useForm() 
+
+    const callback = key => {
+        console.log('Key : ',key)
+    }
+
+    const onAddSuccess = () => {
+        Modal.success({
+            content: 'เพิ่มตอนใหม่สำเร็จ',
+            onOk: ()=>{
+                setIsSubmit(false)
+                form.resetFields()
+            }
+        })
+    }
+
+    const onAddError = () => {
+        Modal.error({
+            content: 'เพิ่มตอนใหม่ไม่สำเร็จ'
+        })
+    }
+
     return(
         <>
             <Topic>
-                <TitleStyle style={{color:'white'}}>Add Chapter</TitleStyle>
+                <TitleStyle style={{color:'white'}}>เพิ่มตอน</TitleStyle>
             </Topic>
             <Card>
                 <Form
@@ -66,11 +197,11 @@ export function AddChapter(){
                     onFinishFailed={onFinishFailed}
                 >
                     <FormInputStyle name={'content'}>
-                        <TextArea rows={22}/>
+                        <TextArea rows={15} style={{fontSize: '0.9vw'}} />
                     </FormInputStyle>
                     <FormControlStyle>
                         <Button htmlType='button' onClick={onReset}>
-                            RESET
+                            ล้างข้อมูล
                         </Button>
                         <Button 
                             htmlType='submit' 
@@ -80,11 +211,27 @@ export function AddChapter(){
                                 borderColor: '#A214CD',
                                 borderRadius: '0.5em'
                             }}>
-                            Add Chapter
+                            เพิ่มตอน
                         </Button>
                     </FormControlStyle>
                 </Form>
             </Card>
+            { hasContent ?
+            <Card>
+                <Topic>
+                    <TitleStyle style={{color:'white'}}>ตอนทั้งหมด ({`${JSON.parse(content).length} ตอน`})</TitleStyle>
+                </Topic>
+                <CollapseStyle defaultActiveKey={['1']} onChange={callback}>
+                    {JSON.parse(content).map(chapter => (
+                        <PanelStyle header={`ตอนที่ ${chapter.index}`} key={`chap${chapter.index}`} >
+                            {chapter.text}
+                        </PanelStyle>
+                    ))}
+                </CollapseStyle>
+            </Card>
+            :
+            null
+            }
         </>
     )
 }

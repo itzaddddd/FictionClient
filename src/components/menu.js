@@ -18,7 +18,7 @@ const ItemStyle = styled(Menu.Item)`
 `
 export const AppMenu = () => {
     const { pathname } = useLocation()
-    const session = getSessionCookie()
+    const name = JSON.parse(getSessionCookie('name'))
     
     return(
         <>
@@ -26,17 +26,17 @@ export const AppMenu = () => {
             &&
             <MenuStyle mode='horizontal'>
                 <ItemStyle>
-                    <Link to={'/'}>Home</Link>
+                    <Link to={'/'}>หน้าหลัก</Link>
                 </ItemStyle>
                 <ItemStyle>
-                    <Link to={'/result'}>View Story</Link>
+                    <Link to={'/add'}>เพิ่มตอน</Link>
                 </ItemStyle>
                 <ItemStyle>
-                    <Link to={'/add'}>Add Chapter</Link>
+                    <Link to={'/result'}>แสดงผลลัพธ์</Link>
                 </ItemStyle>
-                { session.name ?
+                { name ?
                 <ItemStyle style={{float: 'right'}}>
-                    <Link to={'/'}>Story : {session.name}</Link>
+                    <Link to={'/'}>เรื่อง : {name}</Link>
                 </ItemStyle>
                 :
                 null

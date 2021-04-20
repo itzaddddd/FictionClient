@@ -1,35 +1,44 @@
-import Cookies from 'js-cookie'
-
-export const setSessionCookie = async session => {
-    Cookies.remove('session')
-    Cookies.set('session', session, {expires:14})
-    return await new Promise((resolve, reject)=>{
-        const session = getSessionCookie()
-        if(session !== undefined){
-            resolve({isSuccess:true})
-        }else{
-            reject({isSuccess:false})
-        }
-    })
-}
-
-export const resetSessionCookie = async () => {
-    Cookies.remove('session')
+export const setSessionCookie = async (name, session) => {
+    localStorage.setItem(name,session)
     return await new Promise((resolve, reject) => {
-        const session = getSessionCookie()
-        if(session.name === undefined){
-            resolve({isReset: true})
+        const item = localStorage.getItem(name)
+        if(item !== undefined){
+            resolve({isSuccess: true})
         }else{
-            reject({isReset: false})
+            reject({isSuccess: false})
         }
     })
 }
 
-export const getSessionCookie = () => {
-    const sessionCookie = Cookies.get('session')
-    if(sessionCookie === undefined){
+export const resetSessionCookie = async name => {
+    localStorage.removeItem(name)
+    return await new Promise((resolve, reject) => {
+         const item = localStorage.getItem(name)
+         if(item !== undefined){
+             resolve({isReset: true})
+         }else{
+             reject({isReset: false})
+         }
+    })
+}
+
+export const getSessionCookie = name => {
+    const item = localStorage.getItem(name)
+    if(item === undefined){
         return {}
     }else{
-        return JSON.parse(sessionCookie)
+        return JSON.stringify(item)
     }
+}
+
+export const clearSessionCookie = async () => {
+    localStorage.clear()
+    return await new Promise((resolve, reject) => {
+        const itemLength = localStorage.length
+        if(itemLength === 0){
+            resolve({isClear: true})
+        }else{
+            reject({isClear: false})
+        }
+   })
 }
