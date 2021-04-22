@@ -2,6 +2,7 @@ import styled from 'styled-components'
 import { Card, Typography, Form, Input, Button, Collapse, Modal } from 'antd'
 import { useState, useEffect } from 'react'
 import { setSessionCookie, getSessionCookie} from '../store/session'
+import { FIC_DOMAIN } from '../constants'
 import Axios from 'axios'
 
 const { Title } = Typography
@@ -99,26 +100,23 @@ export function AddChapter(){
     useEffect(() => {
         if(content){
             setHasContent(true)
-            console.log('Effect Content : ',JSON.parse(content))
             Axios({
                 method: 'POST',
-                url: '/fic',
+                url: `${FIC_DOMAIN}/fic`,
                 data: {input: parseFloat((JSON.parse(content)[0].text))}
             }) 
             .then( res => {
-                console.log('Res : ',res.data.data)
                 const predict = res.data.data
                 setSessionCookie('result', predict)
                 .then(res => {
                     console.log('Predict Complete')
                 })
                 .catch(err => {
-                    console.log(err)
                     alert(err)
                 })
             })
             .catch( err => {
-                console.log('Err : ',err)
+                alert(err)
             })
         }
     },[content])
@@ -163,10 +161,6 @@ export function AddChapter(){
     }
 
     const [form] = Form.useForm() 
-
-    const callback = key => {
-        console.log('Key : ',key)
-    }
 
     const onAddSuccess = () => {
         Modal.success({
@@ -221,7 +215,7 @@ export function AddChapter(){
                 <Topic>
                     <TitleStyle style={{color:'white'}}>ตอนทั้งหมด ({`${JSON.parse(content).length} ตอน`})</TitleStyle>
                 </Topic>
-                <CollapseStyle defaultActiveKey={['1']} onChange={callback}>
+                <CollapseStyle defaultActiveKey={['1']}>
                     {JSON.parse(content).map(chapter => (
                         <PanelStyle header={`ตอนที่ ${chapter.index}`} key={`chap${chapter.index}`} >
                             {chapter.text}

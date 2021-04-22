@@ -220,7 +220,7 @@ export function Result() {
                 <Col flex={12}>
                     <CardHeader>
                         {name ? name : null} <Chapter>({chapter ? JSON.parse(chapter).length : 0} ตอน)</Chapter>
-                        <Chapter>({result ? `Test : ${parseFloat(JSON.parse(result)).toFixed(2)}` : ''})</Chapter>
+                        <Chapter>{result ? `(Test : ${parseFloat(JSON.parse(result)).toFixed(2)})` : ''}</Chapter>
                     </CardHeader>
                 </Col>
             </RowStyle>
