@@ -33,7 +33,6 @@
       "react-app/jest"
     ]
   },
-  "proxy": "https://fiction-gene-server.herokuapp.com",
   "browserslist": {
     "production": [
       ">0.2%",
