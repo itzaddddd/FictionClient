@@ -33,7 +33,7 @@
       "react-app/jest"
     ]
   },
-  "proxy": "http://localhost:4000",
+  "proxy": "https://fiction-gene-server.herokuapp.com",
   "browserslist": {
     "production": [
       ">0.2%",
