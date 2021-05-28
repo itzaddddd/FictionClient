@@ -1,6 +1,7 @@
 import { Modal, Input } from 'antd'
 import { useEffect } from 'react'
 import { setSessionCookie, getSessionCookie } from '../../store/session'
+import { ModalStyle } from './modal.style'
 export function NewStoryModal(props){
     const { 
         isModalVisible, 
@@ -45,7 +46,7 @@ export function NewStoryModal(props){
         setStoryName(e.target.value)
     }
     return(
-        <Modal
+        <ModalStyle
             title="เพิ่มเรื่องใหม่"
             visible={isModalVisible}
             onOk={handleOk}
@@ -54,6 +55,6 @@ export function NewStoryModal(props){
             cancelText={'ยกเลิก'}
         >
             ชื่อเรื่อง <Input onChange={handleStoryNameChange} value={storyName} />
-        </Modal>
+        </ModalStyle>
     )
 }

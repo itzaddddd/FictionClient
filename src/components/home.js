@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom'
 import { useState } from 'react'
 import { NewStoryModal } from './modal/newStory'
 import { ResetModal } from './modal/reset'
-import { getSessionCookie ,resetSessionCookie, clearSessionCookie } from '../store/session'
+import { getSessionCookie , clearSessionCookie } from '../store/session'
 
 const { Title } = Typography
 const TitleStyle = styled(Title)`
@@ -12,7 +12,7 @@ const TitleStyle = styled(Title)`
     color: white;
 `
 const Topic = styled(Card)`
-    background-color: #A214CD;
+    background-color: var(--color-topic-main);
     padding: 0.5em;
     margin: 0 auto;
     margin-top: 2%;
@@ -21,7 +21,7 @@ const Topic = styled(Card)`
     width: 50%;
 `
 const GroupMenu = styled(Card)`
-    background-color: #eed9fa;
+    background-color: var(--color-bg-base);
     border-radius: 1em;
     margin: 0 auto;
     margin-top: 3em;
@@ -36,7 +36,7 @@ const GroupMenu = styled(Card)`
 `
 
 const MenuItem = styled(Card)`
-    background-color: #A214CD;
+    background-color: var(--color-topic-main);
     margin: 1em;
     width: 10vw;
     height: 10vw;
@@ -57,7 +57,7 @@ const StoryName = styled(Card)`
     width: 30%;
     text-align: center;
     font-size: 1.4vw;
-    background-color: #eed9fa;
+    background-color: var(--color-bg-base);
     border-radius: 0.5em;
 `
 export const Home = () => {
@@ -91,7 +91,7 @@ export const Home = () => {
         Modal.success({
             content: 'ล้างข้อมูลสำเร็จ!',
             onOk: () => history.push('/'),
-            okText: 'ตกลง'
+            okText: 'ตกลง',
         })
     }
 
@@ -131,38 +131,38 @@ export const Home = () => {
         }
         <GroupMenu>
             { name ?
-            <MenuItem style={{backgroundColor:'#d3d3d3', color:'black'}}>
+            <MenuItem style={{backgroundColor:'var(--color-disable)', color:'black'}}>
                 เพิ่มเรื่องใหม่
             </MenuItem>
             :
-            <MenuItem onClick={showModal} style={{backgroundColor:'#4d0e72'}} hoverable>
+            <MenuItem onClick={showModal} style={{backgroundColor:'var(--color-new-story)'}} hoverable>
                 เพิ่มเรื่องใหม่
             </MenuItem>
             }
             { name ?
-            <MenuItem onClick={()=>history.push('/add')} style={{backgroundColor:'#8017bd'}} hoverable>
+            <MenuItem onClick={()=>history.push('/add')} style={{backgroundColor:'var(--color-new-chap)'}} hoverable>
                 เพิ่มตอน
             </MenuItem>
             :
-            <MenuItem style={{backgroundColor:'#d3d3d3',color: 'black'}}>
+            <MenuItem style={{backgroundColor:'var(--color-disable)',color: 'black'}}>
                 เพิ่มตอน
             </MenuItem>
             }
             { name ?
-            <MenuItem onClick={()=>history.push('/result')} style={{backgroundColor:'#aa42e8'}} hoverable>
+            <MenuItem onClick={()=>history.push('/result')} style={{backgroundColor:'var(--color-result)'}} hoverable>
                 แสดงผลลัพธ์
             </MenuItem>
             :
-            <MenuItem style={{backgroundColor:'#d3d3d3', color:'black'}}>
+            <MenuItem style={{backgroundColor:'var(--color-disable)', color:'black'}}>
                 แสดงผลลัพธ์
             </MenuItem>
             }
             { name ?
-            <MenuItem onClick={setIsResetModalVisible} style={{backgroundColor:'#cc8df1'}} hoverable>
+            <MenuItem onClick={setIsResetModalVisible} style={{backgroundColor:'var(--color-reset)'}} hoverable>
                 ล้างข้อมูล
             </MenuItem>
             :
-            <MenuItem style={{backgroundColor:'#d3d3d3',color:'black'}}>
+            <MenuItem style={{backgroundColor:'var(--color-disable)',color:'black'}}>
                 ล้างข้อมูล
             </MenuItem>
             }

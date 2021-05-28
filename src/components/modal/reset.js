@@ -1,6 +1,6 @@
-import { Modal } from 'antd'
+import { ModalStyle } from './modal.style'
 
-export function ResetModal(props){
+export const ResetModal = props => {
     const { isResetModalVisible, setIsResetModalVisible, onReset } = props
     const onOk = () => {
         onReset()
@@ -11,7 +11,7 @@ export function ResetModal(props){
     }
 
     return (
-        <Modal
+        <ModalStyle
             visible={isResetModalVisible}
             onOk={onOk}
             onCancel={onCancel}
@@ -19,6 +19,6 @@ export function ResetModal(props){
             cancelText={'ยกเลิก'}
         >
             ข้อมูลทั้งหมดจะหายไป คุณแน่ใจที่จะล้างข้อมูลหรือไม่?
-        </Modal>
+        </ModalStyle>
     )
 }

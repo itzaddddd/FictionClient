@@ -2,9 +2,11 @@ import { useLocation, Link } from 'react-router-dom'
 import { Menu } from 'antd'
 import styled from 'styled-components'
 import { getSessionCookie } from '../store/session'
+import { HomeOutlined, FileAddOutlined, LineChartOutlined } from '@ant-design/icons'
+
 const MenuStyle = styled(Menu)`
-    background-color: white;
-    border-color: #A214CD;
+    background-color: var(--color-menu-bg-main);
+    border-color: var(--color-menu-bg-main);
     padding: 0.5em;
     &.ant-menu {
         font-size: 1.2vw;
@@ -12,8 +14,17 @@ const MenuStyle = styled(Menu)`
 `
 const ItemStyle = styled(Menu.Item)`
     &.ant-menu-item a {
-        color: #A214CD;
-        text-align: center;
+        color: white;
+        padding: 0.5em;
+        border-radius: 0.5em;
+    }
+    &.ant-menu-item a:hover {
+        color: white;
+        background-color: var(--color-menu-bg-sec);
+    }
+    &.ant-menu-item-selected {
+        border-radius: 0.5em;
+        background-color: var(--color-menu-bg-sec);
     }
 `
 export const AppMenu = () => {
@@ -26,17 +37,17 @@ export const AppMenu = () => {
             &&
             <MenuStyle mode='horizontal'>
                 <ItemStyle>
-                    <Link to={'/'}>หน้าหลัก</Link>
+                    <Link to={'/'}><HomeOutlined style={{fontSize:'1em'}} />หน้าหลัก</Link>
                 </ItemStyle>
                 <ItemStyle>
-                    <Link to={'/add'}>เพิ่มตอน</Link>
+                    <Link to={'/add'}><FileAddOutlined style={{fontSize:'1em'}} />เพิ่มตอน</Link>
                 </ItemStyle>
                 <ItemStyle>
-                    <Link to={'/result'}>แสดงผลลัพธ์</Link>
+                    <Link to={'/result'}><LineChartOutlined style={{fontSize:'1em'}} />แสดงผลลัพธ์</Link>
                 </ItemStyle>
                 { name ?
                 <ItemStyle style={{float: 'right'}}>
-                    <Link to={'/'}>เรื่อง : {name}</Link>
+                    <Link to={'/'}>{name}</Link>
                 </ItemStyle>
                 :
                 null

@@ -1,12 +1,13 @@
 import styled from 'styled-components'
-import { Card, Typography, Form, Input, Button, Collapse, Modal } from 'antd'
+import { Card, Typography, Button, Collapse, Modal, Upload, Space } from 'antd'
+import { FileAddOutlined, FolderAddOutlined, MessageOutlined } from '@ant-design/icons'
 import { useState, useEffect } from 'react'
 import { setSessionCookie, getSessionCookie} from '../store/session'
 import { FIC_DOMAIN } from '../constants'
+import { InputChapter } from '../components/modal/inputChapter'
 import Axios from 'axios'
 
 const { Title } = Typography
-const { TextArea } = Input
 const { Panel } = Collapse
 
 const TitleStyle = styled(Title)`
@@ -15,33 +16,13 @@ const TitleStyle = styled(Title)`
 `
 
 const Topic = styled(Card)`
-    background-color: #A214CD;
+    background-color: var(--color-topic-main);
     padding: 0.5em;
     margin: 0 auto;
     margin-top: 2%;
     margin-bottom: 1em;
     border-radius: 1em;
     width: 50%;
-`
-const FormInputStyle = styled(Form.Item)`
-    width: 60%;
-    margin: 0 auto;
-    &.ant-form-item {
-        textArea {
-            border-color: #A214CD;
-            border-radius: 1em;
-            border-width: 0.2em;
-        }
-    }
-`
-const FormControlStyle = styled(Form.Item)`
-    &.ant-form-item{
-        button.ant-btn {
-            margin: 0 auto;
-            margin-top: 1em;
-            display: block;
-        }
-    }
 `
 
 const CollapseStyle = styled(Collapse)`
@@ -50,47 +31,79 @@ const CollapseStyle = styled(Collapse)`
     margin-top: 5em;
     margin-bottom: 5em;
     border-radius: 1em;
-    
 `
 
 const PanelStyle = styled(Panel)`
     font-size: 1.5em;
     color: red;
 ` 
-const text = `
-        เดือนห้าหน้าร้อน อาวรณ์หัวใจเจียนบ้า ฟังเสียงเพลงครวญหาจำปา ที่ทิ้งบ้านนาเข้ามาบางกอก
-        น้องขออภัย หนีไปแล้วไม่ได้บอก เจ้าจำปาอยากหาทางออก อยู่บ้านนอกมันเบื่อหลังควาย
-        มาอยู่เมืองหลวง โดนลวงหัวใจสะบั้น น้องได้เป็นสะใภ้นายพัน เพียงสี่ห้าวันแล้วเขาก็หน่าย
-        ซ้ำถูกประณาม หยามตัวเหมือนวัวเหมือนควาย โอ้เดือนหกฝนตกโปรยปราย น้องนอนร้องไห้คิดถึงสุพรรณ
-        
-    `
+const ButtonGroupStyle = styled(Card)`
+    width: 15%;
+    border-radius: 1em;
+    margin: 0 auto;
+    margin-top: 5em;
+    padding: 1em;
+    background-color: var(--color-bg-base);
+`
+const ButtonControlStyle = styled(Card)`
+    margin: 0 auto;
+    width: 20%;
+    border-color: white;
+`
 
-const chapterData = [
-    {
-        index: 1,
-        text: text 
-    },
-    {
-        index: 2,
-        text: text 
-    },
-    {
-        index: 3,
-        text: text 
-    },
-    {
-        index: 4,
-        text: text 
-    },
-    {
-        index: 5,
-        text: text 
+const ButtonInput = styled(Button)`
+    border-radius: 0.5em;
+    display: inline-block;
+    height: 2.4em;
+    width: 12em;
+    &.ant-btn{
+        background-color: var(--color-new-chap);
+        border-color: var(--color-new-chap);
+        color: white;
+        font-size: 0.9vw;
     }
-]
+    &.ant-btn:hover{
+        background-color: var(--color-menu-bg-main);
+        border-color: var(--color-menu-bg-main);
+    }
+`
+
+const ButtonUpload = styled(Button)`
+    border-radius: 0.5em;
+    display: inline-block;
+    height: 2em;
+    width: 8em;
+    &.ant-btn{
+        font-size: 0.8vw;
+        background-color: white;
+        border-color: var(--color-topic-main);
+        color: var(--color-topic-main);
+    }
+    &.ant-btn:hover{
+        border-color: var(--color-menu-bg-sec);
+        color: var(--color-menu-bg-sec);
+    }
+    &.ant-btn-primary{
+        background-color: var(--color-topic-main);
+        border-color: var(--color-topic-main);
+        color: white;
+        font-size: 0.8vw;
+    }
+    &.ant-btn-primary:hover{
+        background-color: var(--color-menu-bg-sec);
+        border-color: var(--color-menu-bg-sec);
+        color: white;
+        font-size: 0.8vw;
+    }
+`
 export function AddChapter(){
     const [isSubmit, setIsSubmit] = useState(false)
+    const [isModalVisible, setIsModalVisible] = useState(false)
     const [content, setContent] = useState(JSON.parse(getSessionCookie('content')))
     const [hasContent, setHasContent] = useState(false)
+    const [value, setValue] = useState('')
+    const [fileList, setFileList] = useState([])
+    const [folder, setFolder] = useState([])
 
     useEffect(()=>{
         if(isSubmit){
@@ -100,40 +113,116 @@ export function AddChapter(){
     useEffect(() => {
         if(content){
             setHasContent(true)
-            Axios({
-                method: 'POST',
-                url: `${FIC_DOMAIN}/fic`,
-                data: {input: parseFloat((JSON.parse(content)[0].text))}
-            }) 
-            .then( res => {
-                const predict = res.data.data
-                setSessionCookie('result', predict)
-                .then(res => {
-                    console.log('Predict Complete')
-                })
-                .catch(err => {
-                    alert(err)
-                })
-            })
-            .catch( err => {
-                alert(err)
-            })
+            saveChapter()
         }
     },[content])
-    const onFinish = values => {
+    useEffect(() => {
+        if(fileList.length > 0 || folder.length > 0){
+            saveTextValue(value)
+        }
+    },[value])
+
+    const saveChapter = () => {
+        Axios({
+            method: 'POST',
+            url: `${FIC_DOMAIN}/fic`,
+            data: {input: parseFloat((JSON.parse(content)[0].text))}
+        }) 
+        .then( res => {
+            const predict = res.data.data
+            setSessionCookie('result', predict)
+            .then(res => {
+                console.log('Predict Complete')
+            })
+            .catch(err => {
+                alert(err)
+            })
+        })
+        .catch( err => {
+            alert(err)
+        })
+    }
+
+    const onAddSuccess = () => {
+        Modal.success({
+            content: 'เพิ่มตอนใหม่สำเร็จ',
+            onOk: ()=>{
+                setIsSubmit(false)
+                clearFileList()
+                setValue('')
+            }
+        })
+    }
+
+    const onAddError = () => {
+        Modal.error({
+            content: 'เพิ่มตอนใหม่ไม่สำเร็จ'
+        })
+    }
+
+    const showModal = () => {
+        setIsModalVisible(true)
+    }
+
+    const handleFileListChange = info => {
+        let fileList = [...info.fileList]
+        setFileList(fileList)
+    }
+    
+    const handleFolderChange = info => {
+        let fileList = [...info.fileList]
+        fileList.sort((fileA, fileB) => sortByFileName(fileA.name, fileB.name))
+        setFolder(fileList)
+    }
+
+    const sortByFileName = (fileA, fileB) => (Number(fileA.match(/(\d+)/g)[0]) - Number((fileB.match(/(\d+)/g)[0])))
+
+    const uploadFileList = async () => {
+        if(fileList.length > 0){
+            for(let i in fileList){
+                await readChapterFile(fileList[i])
+                .then(res => setValue(res))
+                .catch(err => alert(err))
+            }
+        }
+        if(folder.length > 0){
+            for(let i in folder){
+                await readChapterFile(folder[i])
+                .then(res => setValue(res))
+                .catch(err => alert(err))
+            }
+        }
+        setIsSubmit(true)
+    }
+
+    const clearFileList = () => {
+        setFileList([])
+        setFolder([])
+    }
+
+    const readChapterFile = file => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader()
+            reader.readAsText(file.originFileObj,"UTF-8")
+            reader.onload = () => resolve(reader.result)
+            reader.onerror = error => reject(error)
+        })
+    }
+
+    const saveTextValue = () => {
         const currentData = JSON.parse(getSessionCookie('content'))
         let dataArray = []
         if(currentData){
             dataArray = JSON.parse(currentData)
             const newData = {
                 index: dataArray.length+1,
-                text: values.content
+                text: value
             }
             dataArray.push(newData)
         }else{
             const newData = {
                 index: 1,
-                text: values.content
+                text: value
             }
             dataArray.push(newData)
         }
@@ -148,34 +237,7 @@ export function AddChapter(){
                 }
             }
         })
-        .catch(err => console.log('Error: ',err))
-        setIsSubmit(true)
-    }
-
-    const onFinishFailed = error => {
-        console.log(error)
-    }
-
-    const onReset = () => {
-        form.resetFields()
-    }
-
-    const [form] = Form.useForm() 
-
-    const onAddSuccess = () => {
-        Modal.success({
-            content: 'เพิ่มตอนใหม่สำเร็จ',
-            onOk: ()=>{
-                setIsSubmit(false)
-                form.resetFields()
-            }
-        })
-    }
-
-    const onAddError = () => {
-        Modal.error({
-            content: 'เพิ่มตอนใหม่ไม่สำเร็จ'
-        })
+        .catch(err => alert('Error: ',err))
     }
 
     return(
@@ -183,35 +245,53 @@ export function AddChapter(){
             <Topic>
                 <TitleStyle style={{color:'white'}}>เพิ่มตอน</TitleStyle>
             </Topic>
-            <Card>
-                <Form
-                    form={form}
-                    name={`add-chapter`}
-                    onFinish={onFinish}
-                    onFinishFailed={onFinishFailed}
-                >
-                    <FormInputStyle name={'content'}>
-                        <TextArea rows={15} style={{fontSize: '0.9vw'}} />
-                    </FormInputStyle>
-                    <FormControlStyle>
-                        <Button htmlType='button' onClick={onReset}>
-                            ล้างข้อมูล
-                        </Button>
-                        <Button 
-                            htmlType='submit' 
-                            type='primary' 
-                            style={{
-                                backgroundColor:'#A214CD', 
-                                borderColor: '#A214CD',
-                                borderRadius: '0.5em'
-                            }}>
-                            เพิ่มตอน
-                        </Button>
-                    </FormControlStyle>
-                </Form>
-            </Card>
+            <ButtonGroupStyle>
+                <Space size={30} direction="vertical" style={{width: '100%'}} align="center">
+                    <ButtonInput icon={<MessageOutlined />} onClick={showModal}>เพิ่มด้วยข้อความ</ButtonInput>
+                    <Upload 
+                        fileList={fileList} 
+                        onChange={handleFileListChange}
+                        multiple
+                        beforeUpload={()=>false}
+                    >
+                        <ButtonInput icon={<FileAddOutlined />}>อัพโหลดไฟล์</ButtonInput>
+                    </Upload>
+                    <Upload 
+                        directory
+                        fileList={folder}
+                        onChange={handleFolderChange}
+                        beforeUpload={()=>false}
+                    >
+                        <ButtonInput icon={<FolderAddOutlined />}>อัพโหลดโฟลเดอร์</ButtonInput>
+                    </Upload>
+                </Space>
+            </ButtonGroupStyle>
+            { fileList.length > 0 || folder.length > 0 ?
+            <ButtonControlStyle>
+                <Space direction="vertical" style={{width: '100%'}} align="center">
+                    <ButtonUpload onClick={clearFileList}>
+                        ยกเลิก
+                    </ButtonUpload>
+                    <ButtonUpload type='primary' onClick={uploadFileList}>
+                        อัพโหลด
+                    </ButtonUpload>
+                </Space>
+            </ButtonControlStyle>
+            :
+            null
+            }
+            <InputChapter 
+                isModalVisible={isModalVisible}
+                setIsModalVisible={setIsModalVisible}
+                value={value}
+                setValue={setValue}
+                content={content}
+                setContent={setContent}
+                isSubmit={isSubmit}
+                setIsSubmit={setIsSubmit}
+            />
             { hasContent ?
-            <Card>
+            <Card style={{borderColor:'white'}}>
                 <Topic>
                     <TitleStyle style={{color:'white'}}>ตอนทั้งหมด ({`${JSON.parse(content).length} ตอน`})</TitleStyle>
                 </Topic>

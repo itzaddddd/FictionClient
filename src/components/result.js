@@ -1,10 +1,9 @@
-import { Card, Col, Row, Space, Typography } from 'antd'
+import { Card, Col, Row, Typography } from 'antd'
 import styled from 'styled-components'
 import { getSessionCookie } from '../store/session'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { 
-    ResponsiveContainer,
     RadarChart,
     PolarGrid,
     PolarAngleAxis,
@@ -22,7 +21,7 @@ import {
 const { Text } = Typography
 
 const Container = styled(Card)`
-    background-color: #eed9fa;
+    background-color: var(--color-bg-base);
     padding: 0.5em;
     margin: 0 auto;
     margin-top: 2%;
@@ -35,7 +34,7 @@ const RowStyle = styled(Row)`
 `
 
 const ChartTopic = styled.div`
-    background-color: #8017bd;
+    background-color: var(--color-new-chap);
     color: white;
     margin: 0 auto;
     padding: 0.2em;
@@ -43,13 +42,16 @@ const ChartTopic = styled.div`
     font-size: 1.5em;
     width: 30%;
     text-align: center;
+    :hover{
+      background-color: var(--color-menu-bg-main);
+    }
 `
 
 const CardHeader = styled(Card)`
     text-align: center;
     font-size: 1.8vw;
     border-radius: 0.3em;
-    background-color: #8017bd;
+    background-color: var(--color-new-chap);
     color: white;
 `
 const CardChart = styled(Card)`
@@ -203,7 +205,7 @@ const CustomizedLabel = props => {
       x={x}
       y={y}
       fontSize='1em'
-      fill='#086AFC'
+      fill='var(--color-chart-label)'
     >
       {value}
     </text>
@@ -240,28 +242,28 @@ export function Result() {
                             endAngle={-300}
                         >
                             <PolarGrid
-                              stroke={'#eed9fa'}
+                              stroke={'var(--color-bg-base)'}
                               strokeWidth={1.5}
                             />
                             <PolarAngleAxis
                                 dataKey="type"
-                                tick={{fill: '#8017bd', fontSize: '1.4em'}}
+                                tick={{fill: 'var(--color-new-chap)', fontSize: '1.4em'}}
                             /> 
                             <PolarRadiusAxis 
                                 angle={90} 
                                 domain={[0, 100]} 
                                 orientation="middle" 
                                 tickCount={6} 
-                                tick={{fill: '#DB51EB', margin: '1em', fontSize: '0.8em'}}
+                                tick={{fill: 'var(--color-y-label)', margin: '1em', fontSize: '0.8em'}}
                                 axisLine={false}
                                 dy={5}
                             />
                             <Radar 
                                 name='Score' 
                                 dataKey='A' 
-                                stroke='#FFE91B'
+                                stroke='var(--color-radar)'
                                 strokeWidth={3} 
-                                fill='#FFE91B' 
+                                fill='var(--color-radar)'
                                 fillOpacity={0.3} 
                                 label={<CustomizedLabel />} 
                             />
@@ -290,8 +292,8 @@ export function Result() {
                             />
                             <Tooltip />
                             <Legend />
-                            <Line  type="monotone" dataKey="drama" stroke="#8884d8" />
-                            <Line  type="monotone" dataKey="thriller" stroke="#82ca9d" />
+                            <Line  type="monotone" dataKey="drama" stroke="var(--color-line-main)"/>
+                            <Line  type="monotone" dataKey="thriller" stroke="var(--color-line-sec)" />
                         </LineChartStyle>
                     </CardChart>
                 </Col>
