@@ -161,7 +161,6 @@ export function Result() {
     },[content])
     useEffect(() => {
       if(result){
-        setIsLoading(false)
         setProbData(getProbData())
         const probMap = result.map(chap => {
           let map = {}
@@ -187,6 +186,11 @@ export function Result() {
         setTopGenre(topGenre)
       }
     },[probData])
+
+    useEffect(() => {
+      if(probMap.length > 0 && content && probMap.length === content.length)
+        setIsLoading(false)
+    },[probMap])
     const getProbData = () => {
       const probSum = {
         'action':0,
@@ -244,7 +248,7 @@ export function Result() {
                         </ChartTopic>
                         <TopGenre>
                           {topGenre.map((genre,index) => {
-                            const sub = lineMap.find(line => line.genre === genre)
+                            let sub = lineMap.find(line => line.genre === genre)
                             let tag = ''
                             {index === 0 ?
                               tag =  
