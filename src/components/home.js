@@ -131,38 +131,78 @@ export const Home = () => {
         }
         <GroupMenu>
             { name ?
-            <MenuItem style={{backgroundColor:'var(--color-disable)', color:'black'}}>
+            <MenuItem style={{
+                backgroundColor:'var(--color-disable)', 
+                borderColor:'var(--color-disable)', 
+                color:'black'
+                }}
+            >
                 เพิ่มเรื่องใหม่
             </MenuItem>
             :
-            <MenuItem onClick={showModal} style={{backgroundColor:'var(--color-new-story)'}} hoverable>
+            <MenuItem onClick={showModal} style={{
+                backgroundColor:'var(--color-new-story)',
+                borderColor:'var(--color-new-story)'
+                }} 
+                hoverable
+            >
                 เพิ่มเรื่องใหม่
             </MenuItem>
             }
             { name ?
-            <MenuItem onClick={()=>history.push('/add')} style={{backgroundColor:'var(--color-new-chap)'}} hoverable>
+            <MenuItem onClick={()=>history.push('/add')} style={{
+                backgroundColor:'var(--color-new-chap)',
+                borderColor:'var(--color-new-chap)'
+                }} 
+                hoverable
+            >
                 เพิ่มตอน
             </MenuItem>
             :
-            <MenuItem style={{backgroundColor:'var(--color-disable)',color: 'black'}}>
+            <MenuItem style={{
+                backgroundColor:'var(--color-disable)',
+                borderColor:'var(--color-disable)',
+                color: 'black'
+                }}
+            >
                 เพิ่มตอน
             </MenuItem>
             }
             { name ?
-            <MenuItem onClick={()=>history.push('/result')} style={{backgroundColor:'var(--color-result)'}} hoverable>
+            <MenuItem onClick={()=>history.push('/result')} style={{
+                backgroundColor:'var(--color-result)',
+                borderColor:'var(--color-result)'
+                }} 
+                hoverable
+            >
                 แสดงผลลัพธ์
             </MenuItem>
             :
-            <MenuItem style={{backgroundColor:'var(--color-disable)', color:'black'}}>
+            <MenuItem style={{
+                backgroundColor:'var(--color-disable)',
+                borderColor:'var(--color-disable)', 
+                color:'black'
+                }}
+            >
                 แสดงผลลัพธ์
             </MenuItem>
             }
             { name ?
-            <MenuItem onClick={setIsResetModalVisible} style={{backgroundColor:'var(--color-reset)'}} hoverable>
+            <MenuItem onClick={setIsResetModalVisible} style={{
+                backgroundColor:'var(--color-reset)',
+                borderColor:'var(--color-reset)'
+                }} 
+                hoverable
+            >
                 ล้างข้อมูล
             </MenuItem>
             :
-            <MenuItem style={{backgroundColor:'var(--color-disable)',color:'black'}}>
+            <MenuItem style={{
+                backgroundColor:'var(--color-disable)',
+                borderColor:'var(--color-disable)',
+                color:'black'
+                }}
+            >
                 ล้างข้อมูล
             </MenuItem>
             }

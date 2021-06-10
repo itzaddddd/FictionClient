@@ -1,9 +1,10 @@
-import { Card, Col, Row, Typography } from 'antd'
+import { Card, Col, Row, Typography, Spin, Tag } from 'antd'
 import styled from 'styled-components'
 import { getSessionCookie } from '../store/session'
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { 
+    ResponsiveContainer,
     RadarChart,
     PolarGrid,
     PolarAngleAxis,
@@ -17,6 +18,7 @@ import {
     Tooltip,
     Line 
 } from 'recharts'
+import { ControlOutlined } from '@ant-design/icons'
 
 const { Text } = Typography
 
@@ -75,6 +77,30 @@ const LineChartStyle = styled(LineChart)`
     margin-top: 2em;
 `
 
+const SpinStyle = styled(Spin)`
+    margin-top: 10%;
+    .ant-spin-dot-item{
+        background-color: var(--color-new-story);
+        font-size: 1.5em;
+    }
+    .ant-spin-text{
+        color: var(--color-new-story);
+        font-size: 1.5em;
+    }
+`
+
+const TopGenre = styled(Card)`
+    border-color: white;
+    text-align: center;
+`
+
+const TagStyle = styled(Tag)`
+    border-radius: 0.5em;
+    font-size: 1em;
+    padding: 0.5em;
+    width: 7em;
+`
+ 
 const CustomizedRadarLabel = props => {
   const {x,y,value} = props
   return (
@@ -93,38 +119,49 @@ export function Result() {
     const [name, setName ] = useState(JSON.parse(getSessionCookie('name')))
     const [content, setContent] = useState(JSON.parse(JSON.parse(getSessionCookie('content'))))
     const [result, setResult ] = useState(JSON.parse(JSON.parse(getSessionCookie('result'))))
+    const [isLoading, setIsLoading] = useState(false)
     const [probData, setProbData] = useState([])
     const [topGenre, setTopGenre] = useState([])
     const [probMap, setProbMap] = useState([])
     const [lineMap, setLineMap] = useState([
       {
         genre: 'action',
-        color: '#EBB814'
+        color: '#EBB814',
+        genreTH: 'แอคชัน'
       },
       {
         genre: 'detective',
-        color: '#14C143'
+        color: '#14C143',
+        genreTH: 'สืบสวน'
       },
       {
         genre: 'drama',
-        color: '#37A4F7'
+        color: '#37A4F7',
+        genreTH: 'ดราม่า'
       },
       {
         genre: 'fantasy',
-        color: '#4025EF'
+        color: '#4025EF',
+        genreTH: 'แฟนตาซี'
       },
       {
         genre: 'romantic',
-        color: '#EC21D8'
+        color: '#EC21D8',
+        genreTH: 'โรแมนติก'
       },
       {
         genre: 'thriller',
-        color: '#D70000'
+        color: '#D70000',
+        genreTH: 'ระทึกขวัญ'
       },
     ])
 
     useEffect(() => {
+      if(content) setIsLoading(true)
+    },[content])
+    useEffect(() => {
       if(result){
+        setIsLoading(false)
         setProbData(getProbData())
         const probMap = result.map(chap => {
           let map = {}
@@ -141,7 +178,6 @@ export function Result() {
     },[result])
 
     useEffect(() => {
-      console.log(probData)
       if(probData.length > 0){
         const unsortedProbData = [...probData]
         const sortedProbData = [
@@ -151,7 +187,6 @@ export function Result() {
         setTopGenre(topGenre)
       }
     },[probData])
-
     const getProbData = () => {
       const probSum = {
         'action':0,
@@ -190,6 +225,7 @@ export function Result() {
     }
     
     return(
+      <SpinStyle spinning={isLoading} tip="กำลังประมวลผล..." size="large">
         <Container>
             <RowStyle>
                 <Col flex={12}>
@@ -201,14 +237,41 @@ export function Result() {
             <RowStyle justify='center'>
             { content ?
                 <>
-                <Col flex={4}>
+                <Col flex={8}>
                     <CardChart>
                         <ChartTopic>
                             ภาพรวม
                         </ChartTopic>
+                        <TopGenre>
+                          {topGenre.map((genre,index) => {
+                            const sub = lineMap.find(line => line.genre === genre)
+                            let tag = ''
+                            {index === 0 ?
+                              tag =  
+                              <TagStyle 
+                                key={genre} 
+                                color={sub.color} 
+                                style={{fontSize:'1.3em'}}
+                              >
+                                {sub.genreTH}
+                              </TagStyle>
+                              :
+                              tag =
+                              <TagStyle 
+                                key={genre} 
+                                color={sub.color} 
+                                style={{opacity:0.7}}
+                              >
+                                {sub.genreTH}
+                              </TagStyle>
+                            }
+                            return tag
+                          })}
+                        </TopGenre>
                         { probData.length > 0 ?
+                        <ResponsiveContainer width={'96%'} height={400} >
                         <RadarChartStyle 
-                            width={500} 
+                            width={400} 
                             height={400} 
                             data={probData} 
                             startAngle={60} 
@@ -220,7 +283,11 @@ export function Result() {
                             />
                             <PolarAngleAxis
                                 dataKey="genre"
-                                tick={{fill: 'var(--color-new-chap)', fontSize: '1.4em'}}
+                                tick={{fill: 'var(--color-new-chap)', fontSize: '1.1vh'}}
+                                tickFormatter={tickItem => {
+                                  const sub = lineMap.find(line => line.genre === tickItem )
+                                  return sub.genreTH
+                                }}
                                 dx={1}
                             /> 
                             <PolarRadiusAxis 
@@ -244,16 +311,18 @@ export function Result() {
                                 label={<CustomizedRadarLabel />} 
                             />
                         </RadarChartStyle>
+                        </ResponsiveContainer>
                         :
                         null
                         } 
                     </CardChart>
                 </Col>
-                <Col flex={8}>
+                <Col flex={16}>
                     <CardChart>
                         <ChartTopic>
                             การดำเนินเรื่อง
                         </ChartTopic>
+                        <ResponsiveContainer width={"95%"} height={400}>
                         <LineChartStyle width={800} height={400} data={probMap}>
                             <CartesianGrid strokeDasharray="2 2" />
                             <XAxis 
@@ -276,15 +345,17 @@ export function Result() {
                             />
                             {lineMap.map(line => 
                             <Line
-                              key={line.genre }  
+                              key={line.genre}  
                               type="monotone"
                               dot={false}
-                              dataKey={line.genre} 
+                              dataKey={line.genre}
+                              name={line.genreTH} 
                               stroke={line.color}
                               isAnimationActive={false}
                               opacity={topGenre.includes(line.genre)?1:0.2}
                             />)}
                         </LineChartStyle>
+                        </ResponsiveContainer>
                     </CardChart>
                 </Col>
                 </>
@@ -297,6 +368,6 @@ export function Result() {
             }
             </RowStyle>
         </Container>
-    
+      </SpinStyle>  
     )
 }

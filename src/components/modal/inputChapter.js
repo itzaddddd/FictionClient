@@ -1,3 +1,4 @@
+import {useState} from 'react'
 import { Modal, Input } from 'antd'
 import styled from 'styled-components'
 import { setSessionCookie, getSessionCookie } from '../../store/session'
@@ -63,6 +64,7 @@ const ModalStyle = styled(Modal)`
 `
 
 export function InputChapter(props){
+    const [isShowError, setIsShowError] = useState(true)
     const { 
         isModalVisible, 
         setIsModalVisible,
@@ -115,6 +117,8 @@ export function InputChapter(props){
 
     const onChange = e => {
         setValue(e.target.value)
+        if(value.length < 1000) setIsShowError(true)
+        else setIsShowError(false)
     }
 
     return(
@@ -125,9 +129,12 @@ export function InputChapter(props){
             onCancel={onCancel}
             okText="เพิ่มตอน"
             cancelText="ยกเลิก"
-            width={1200}    
+            width={1200}
+            okButtonProps={{disabled:isShowError}}
+
         >
             <TextAreaStyle rows={22} style={{fontSize: '0.8vw'}} value={value} onChange={onChange} />
+            {isShowError?'*เนื้อหาต้องยาวอย่างน้อย 1000 ตัวอักษร':null}
         </ModalStyle>
     )
 }

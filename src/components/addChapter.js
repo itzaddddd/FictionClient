@@ -8,7 +8,7 @@ import { FIC_DOMAIN } from '../constants'
 import { InputChapter } from '../components/modal/inputChapter'
 import Axios from 'axios'
 
-const { Title } = Typography
+const { Title, Text } = Typography
 const { Panel } = Collapse
 
 const TitleStyle = styled(Title)`
@@ -109,6 +109,16 @@ const SpinStyle = styled(Spin)`
         font-size: 1.5em;
     }
 `
+
+const ConditionStyle = styled(Card)`
+    margin: 0 auto;
+    width: 30%;
+    text-align: center;
+    border-color: white;
+    border-radius: 0.5em;
+    background-color: var(--color-bg-base);
+    font-size: 1.2em;
+`
 export function AddChapter(){
     const [isSubmit, setIsSubmit] = useState(false)
     const [isModalVisible, setIsModalVisible] = useState(false)
@@ -172,7 +182,6 @@ export function AddChapter(){
             const resultArrayStr = JSON.stringify(resultArray)
             setSessionCookie('result', resultArrayStr)
             .then(res => {
-                console.log(`Predict complete`)
             })
             .catch(err => {
                 alert(err)
@@ -303,6 +312,7 @@ export function AddChapter(){
             <Topic>
                 <TitleStyle style={{color:'white'}}>เพิ่มตอน</TitleStyle>
             </Topic>
+            <ConditionStyle>กรุณาเพิ่มตอนอย่างน้อย 2 ตอน แต่ละตอนยาวอย่างน้อย 1000 ตัวอักษร</ConditionStyle>
             <ButtonGroupStyle>
                 <Space size={30} direction="vertical" style={{width: '100%'}} align="center">
                     <ButtonInput icon={<MessageOutlined />} onClick={showModal}>เพิ่มด้วยข้อความ</ButtonInput>
