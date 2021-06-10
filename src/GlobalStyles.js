@@ -20,8 +20,6 @@ const GlobalStyle = createGlobalStyle`
         --color-y-label: #DB51EB;
         --color-radar: #FFE91B;
         --color-chart-label: #086AFC;
-        --color-line-main: #8884d8;
-        --color-line-sec: #82ca9d;
     }
 `
 

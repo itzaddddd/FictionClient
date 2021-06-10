@@ -1,7 +1,8 @@
 import styled from 'styled-components'
-import { Card, Typography, Button, Collapse, Modal, Upload, Space } from 'antd'
+import { Card, Typography, Button, Collapse, Modal, Upload, Space, Spin } from 'antd'
 import { FileAddOutlined, FolderAddOutlined, MessageOutlined } from '@ant-design/icons'
 import { useState, useEffect } from 'react'
+import { useHistory } from 'react-router-dom'
 import { setSessionCookie, getSessionCookie} from '../store/session'
 import { FIC_DOMAIN } from '../constants'
 import { InputChapter } from '../components/modal/inputChapter'
@@ -96,25 +97,39 @@ const ButtonUpload = styled(Button)`
         font-size: 0.8vw;
     }
 `
+
+const SpinStyle = styled(Spin)`
+    margin-top: 10%;
+    .ant-spin-dot-item{
+        background-color: var(--color-new-story);
+        font-size: 1.5em;
+    }
+    .ant-spin-text{
+        color: var(--color-new-story);
+        font-size: 1.5em;
+    }
+`
 export function AddChapter(){
     const [isSubmit, setIsSubmit] = useState(false)
     const [isModalVisible, setIsModalVisible] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
     const [content, setContent] = useState(JSON.parse(getSessionCookie('content')))
     const [hasContent, setHasContent] = useState(false)
     const [value, setValue] = useState('')
     const [fileList, setFileList] = useState([])
     const [folder, setFolder] = useState([])
+    const history = useHistory()
 
     useEffect(()=>{
         if(isSubmit){
+            setIsLoading(false)
             onAddSuccess()        
         }
     },[isSubmit])
-    useEffect(() => {
+    useEffect(async () => {
         if(content){
             setHasContent(true)
-            saveChapter()
-        }
+        } 
     },[content])
     useEffect(() => {
         if(fileList.length > 0 || folder.length > 0){
@@ -122,17 +137,42 @@ export function AddChapter(){
         }
     },[value])
 
-    const saveChapter = () => {
-        Axios({
+    const predictGenre = async value => {
+        const data = {
+            content: value
+        }
+        const headers = {
+            'Content-Type': 'application/json;charset=UTF-8',
+        }
+        await Axios({
             method: 'POST',
             url: `${FIC_DOMAIN}/fic`,
-            data: {input: parseFloat((JSON.parse(content)[0].text))}
+            data: data,
+            headers: headers
         }) 
         .then( res => {
-            const predict = res.data.data
-            setSessionCookie('result', predict)
+            console.log(res.data.data)
+            const result = res.data.data
+            const currentResult = JSON.parse(getSessionCookie('result'))
+            let resultArray = []
+            if(currentResult){
+                resultArray = JSON.parse(currentResult)
+                const newResult = {
+                    index: resultArray.length+1,
+                    result: result
+                }
+                resultArray.push(newResult)
+            }else{
+                const newResult = {
+                    index: 1,
+                    result: result
+                }
+                resultArray.push(newResult)
+            }
+            const resultArrayStr = JSON.stringify(resultArray)
+            setSessionCookie('result', resultArrayStr)
             .then(res => {
-                console.log('Predict Complete')
+                console.log(`Predict complete`)
             })
             .catch(err => {
                 alert(err)
@@ -141,12 +181,22 @@ export function AddChapter(){
         .catch( err => {
             alert(err)
         })
+
     }
 
     const onAddSuccess = () => {
         Modal.success({
             content: 'เพิ่มตอนใหม่สำเร็จ',
+            okText: 'แสดงผลลัพธ์',
+            cancelText: 'ยกเลิก',
+            className:'modal-upload',
             onOk: ()=>{
+                setIsSubmit(false)
+                clearFileList()
+                setValue('')
+                history.push('/result')
+            },
+            onCancel: ()=>{
                 setIsSubmit(false)
                 clearFileList()
                 setValue('')
@@ -178,17 +228,24 @@ export function AddChapter(){
     const sortByFileName = (fileA, fileB) => (Number(fileA.match(/(\d+)/g)[0]) - Number((fileB.match(/(\d+)/g)[0])))
 
     const uploadFileList = async () => {
+        setIsLoading(true)
         if(fileList.length > 0){
             for(let i in fileList){
                 await readChapterFile(fileList[i])
-                .then(res => setValue(res))
+                .then(res => {
+                    setValue(res)
+                    predictGenre(res)
+                })
                 .catch(err => alert(err))
             }
         }
         if(folder.length > 0){
             for(let i in folder){
                 await readChapterFile(folder[i])
-                .then(res => setValue(res))
+                .then(res => {
+                    setValue(res)
+                    predictGenre(res)
+                })
                 .catch(err => alert(err))
             }
         }
@@ -209,7 +266,7 @@ export function AddChapter(){
         })
     }
 
-    const saveTextValue = () => {
+    const saveTextValue = async () => {
         const currentData = JSON.parse(getSessionCookie('content'))
         let dataArray = []
         if(currentData){
@@ -242,6 +299,7 @@ export function AddChapter(){
 
     return(
         <>
+        <SpinStyle spinning={isLoading} tip="กำลังอัพโหลด..." size="large">
             <Topic>
                 <TitleStyle style={{color:'white'}}>เพิ่มตอน</TitleStyle>
             </Topic>
@@ -289,6 +347,7 @@ export function AddChapter(){
                 setContent={setContent}
                 isSubmit={isSubmit}
                 setIsSubmit={setIsSubmit}
+                predictGenre={predictGenre}
             />
             { hasContent ?
             <Card style={{borderColor:'white'}}>
@@ -306,6 +365,7 @@ export function AddChapter(){
             :
             null
             }
+        </SpinStyle>    
         </>
     )
 }

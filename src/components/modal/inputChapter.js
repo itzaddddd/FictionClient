@@ -69,7 +69,8 @@ export function InputChapter(props){
         value,
         setValue,
         setContent,
-        setIsSubmit 
+        setIsSubmit,
+        predictGenre 
     } = props 
 
     const onOk = () => {
@@ -82,12 +83,14 @@ export function InputChapter(props){
                 text: value
             }
             dataArray.push(newData)
+            predictGenre(newData.text)
         }else{
             const newData = {
                 index: 1,
                 text: value
             }
             dataArray.push(newData)
+            predictGenre(newData.text)
         }
         const dataArrayStr = JSON.stringify(dataArray)
         setSessionCookie('content', dataArrayStr)
