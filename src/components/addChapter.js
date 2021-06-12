@@ -132,8 +132,12 @@ export function AddChapter(){
 
     useEffect(()=>{
         if(isSubmit){
-            setIsLoading(false)
-            onAddSuccess()        
+            setTimeout(()=>{
+                setIsLoading(false)
+                clearFileList()
+                setValue('')
+                onAddSuccess()
+            },3000)
         }
     },[isSubmit])
     useEffect(async () => {
@@ -161,7 +165,6 @@ export function AddChapter(){
             headers: headers
         }) 
         .then( res => {
-            console.log(res.data.data)
             const result = res.data.data
             const currentResult = JSON.parse(getSessionCookie('result'))
             let resultArray = []
@@ -201,14 +204,10 @@ export function AddChapter(){
             className:'modal-upload',
             onOk: ()=>{
                 setIsSubmit(false)
-                clearFileList()
-                setValue('')
                 history.push('/result')
             },
             onCancel: ()=>{
                 setIsSubmit(false)
-                clearFileList()
-                setValue('')
             }
         })
     }

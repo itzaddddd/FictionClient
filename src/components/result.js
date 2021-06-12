@@ -6,10 +6,9 @@ import { Link } from 'react-router-dom'
 import { 
     ResponsiveContainer,
     RadarChart,
-    PolarGrid,
-    PolarAngleAxis,
-    PolarRadiusAxis,
-    Radar,
+    PieChart,
+    Pie,
+    Cell,
     Legend,
     LineChart,
     CartesianGrid,
@@ -18,7 +17,6 @@ import {
     Tooltip,
     Line 
 } from 'recharts'
-import { ControlOutlined } from '@ant-design/icons'
 
 const { Text } = Typography
 
@@ -67,11 +65,6 @@ const Chapter = styled(Text)`
     color: white;
     font-size: 1vw;
 `
-
-const RadarChartStyle = styled(RadarChart)`
-    margin: 0 auto;
-`
-
 const LineChartStyle = styled(LineChart)`
     margin: 0 auto;
     margin-top: 2em;
@@ -101,19 +94,6 @@ const TagStyle = styled(Tag)`
     width: 7em;
 `
  
-const CustomizedRadarLabel = props => {
-  const {x,y,value} = props
-  return (
-    <text
-      x={x}
-      y={y}
-      fontSize='1.1em'
-      fill='var(--color-chart-label)'
-    >
-      {value}%
-    </text>
-  )
-}
 
 export function Result() {
     const [name, setName ] = useState(JSON.parse(getSessionCookie('name')))
@@ -121,37 +101,38 @@ export function Result() {
     const [result, setResult ] = useState(JSON.parse(JSON.parse(getSessionCookie('result'))))
     const [isLoading, setIsLoading] = useState(false)
     const [probData, setProbData] = useState([])
+    const [sortedProbData, setSortedProbData] = useState([])
     const [topGenre, setTopGenre] = useState([])
     const [probMap, setProbMap] = useState([])
     const [lineMap, setLineMap] = useState([
       {
         genre: 'action',
-        color: '#EBB814',
+        color: '#FFB500',
         genreTH: 'แอคชัน'
       },
       {
         genre: 'detective',
-        color: '#14C143',
+        color: '#50C878',
         genreTH: 'สืบสวน'
       },
       {
         genre: 'drama',
-        color: '#37A4F7',
+        color: '#00BFFF',
         genreTH: 'ดราม่า'
       },
       {
         genre: 'fantasy',
-        color: '#4025EF',
+        color: '#1134A6',
         genreTH: 'แฟนตาซี'
       },
       {
         genre: 'romantic',
-        color: '#EC21D8',
+        color: '#F64A8A',
         genreTH: 'โรแมนติก'
       },
       {
         genre: 'thriller',
-        color: '#D70000',
+        color: '#BF0A30',
         genreTH: 'ระทึกขวัญ'
       },
     ])
@@ -183,6 +164,7 @@ export function Result() {
           ...unsortedProbData.sort((genreA, genreB) => genreB.prob - genreA.prob)
         ] 
         const topGenre = getTopGenre(sortedProbData)
+        setSortedProbData(sortedProbData)
         setTopGenre(topGenre)
       }
     },[probData])
@@ -218,14 +200,39 @@ export function Result() {
 
     const getTopGenre = sortedGenreArr => {
       let sum = 0
+      let genreProb = []
       let topGenre = []
-      sortedGenreArr.every(data => {
+      sortedGenreArr.every((data,index) => {
         topGenre.push(data.genre)
+        genreProb.push(data.prob)
         sum += data.prob
-        if(sum > 50) return false 
+        if(sum>50){
+          if(index-1 === -1)return false
+          if(genreProb[index-1]===data.prob)return false
+          return true
+        }
         return true
       })
       return topGenre
+    }
+    const CustomizedRadarLabel = props => {
+      const {cx,cy,midAngle,innerRadius,outerRadius,value,payload} = props
+      const line = lineMap.find(line => line.genre === payload.genre)
+      const RADIAN = Math.PI/180
+      const radius = 10 + innerRadius + (outerRadius - innerRadius)
+      const x = cx + radius * Math.cos(-midAngle * RADIAN)
+      const y = cy + radius * Math.sin(-midAngle * RADIAN)
+      return (
+        <text
+          x={x}
+          y={y}
+          fontSize='1em'
+          fill={line.color}
+          textAnchor={x>cx?"start":"end"}
+        >
+          {line.genreTH} ({value}%)
+        </text>
+      )
     }
     
     return(
@@ -274,47 +281,28 @@ export function Result() {
                         </TopGenre>
                         { probData.length > 0 ?
                         <ResponsiveContainer width={'96%'} height={400} >
-                        <RadarChartStyle 
+                        <PieChart 
                             width={400} 
-                            height={400} 
-                            data={probData} 
-                            startAngle={60} 
-                            endAngle={-300}
+                            height={400}  
                         >
-                            <PolarGrid
-                              stroke={'var(--color-bg-base)'}
-                              strokeWidth={1.5}
-                            />
-                            <PolarAngleAxis
-                                dataKey="genre"
-                                tick={{fill: 'var(--color-new-chap)', fontSize: '1.1vh'}}
-                                tickFormatter={tickItem => {
-                                  const sub = lineMap.find(line => line.genre === tickItem )
-                                  return sub.genreTH
-                                }}
-                                dx={1}
-                            /> 
-                            <PolarRadiusAxis 
-                                angle={90} 
-                                // domain={[0, 100]} 
-                                orientation="middle" 
-                                // tickCount={6} 
-                                tick={{fill: 'var(--color-y-label)', margin: '1em', fontSize: '0.9em'}}
-                                axisLine={false}
-                                dy={5}
-                                tickFormatter={tickItem => `${tickItem}%`}
-                            />
-                            <Radar 
-                                name='Score' 
-                                dataKey='prob' 
-                                stroke='var(--color-radar)'
-                                strokeWidth={3} 
-                                fill='var(--color-radar)'
-                                fillOpacity={0.3} 
+                            <Pie
+                                name='Score'
+                                data={sortedProbData} 
+                                dataKey='prob'
+                                cx="50%"
+                                cy="50%" 
+                                innerRadius={100}
+                                labelLine={false}
                                 isAnimationActive={false}
                                 label={<CustomizedRadarLabel />} 
-                            />
-                        </RadarChartStyle>
+                            >
+                              {sortedProbData.map((data, index) =>{
+                                const line = lineMap.find(line => line.genre === data.genre)
+                                return <Cell key={`cell-${index}`} fill={line.color} />
+                              } 
+                              )}
+                            </Pie>
+                        </PieChart>
                         </ResponsiveContainer>
                         :
                         null
@@ -356,7 +344,7 @@ export function Result() {
                               name={line.genreTH} 
                               stroke={line.color}
                               isAnimationActive={false}
-                              opacity={topGenre.includes(line.genre)?1:0.2}
+                              opacity={topGenre.includes(line.genre)?1:0.25}
                             />)}
                         </LineChartStyle>
                         </ResponsiveContainer>
