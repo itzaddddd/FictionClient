@@ -202,11 +202,12 @@ export function Result() {
       let genreProb = []
       let topGenre = []
       sortedGenreArr.every((data,index) => {
+        if(topGenre.length >= 3) return false
         topGenre.push(data.genre)
         genreProb.push(data.prob)
         sum += data.prob
         if(sum>50){
-          if(index-1 === -1)return true
+          if(index-1 === -1)return false
           if(genreProb[index-1]===data.prob)return true
           return false
         }
