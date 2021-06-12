@@ -94,7 +94,6 @@ const TagStyle = styled(Tag)`
     width: 7em;
 `
  
-
 export function Result() {
     const [name, setName ] = useState(JSON.parse(getSessionCookie('name')))
     const [content, setContent] = useState(JSON.parse(JSON.parse(getSessionCookie('content'))))
@@ -207,9 +206,9 @@ export function Result() {
         genreProb.push(data.prob)
         sum += data.prob
         if(sum>50){
-          if(index-1 === -1)return false
-          if(genreProb[index-1]===data.prob)return false
-          return true
+          if(index-1 === -1)return true
+          if(genreProb[index-1]===data.prob)return true
+          return false
         }
         return true
       })
@@ -219,18 +218,21 @@ export function Result() {
       const {cx,cy,midAngle,innerRadius,outerRadius,value,payload} = props
       const line = lineMap.find(line => line.genre === payload.genre)
       const RADIAN = Math.PI/180
-      const radius = 10 + innerRadius + (outerRadius - innerRadius)
+      const radius = 8 + innerRadius + (outerRadius - innerRadius)
       const x = cx + radius * Math.cos(-midAngle * RADIAN)
       const y = cy + radius * Math.sin(-midAngle * RADIAN)
       return (
         <text
           x={x}
           y={y}
-          fontSize='1em'
+          fontSize='1.2vh'
           fill={line.color}
           textAnchor={x>cx?"start":"end"}
+          dominantBaseline="central"
         >
-          {line.genreTH} ({value}%)
+          <tspan>{line.genreTH}</tspan>
+          <br />
+          <tspan>({value}%)</tspan>
         </text>
       )
     }
@@ -291,7 +293,8 @@ export function Result() {
                                 dataKey='prob'
                                 cx="50%"
                                 cy="50%" 
-                                innerRadius={100}
+                                innerRadius={70}
+                                outerRadius={130}
                                 labelLine={false}
                                 isAnimationActive={false}
                                 label={<CustomizedRadarLabel />} 

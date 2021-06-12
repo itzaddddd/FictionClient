@@ -357,6 +357,8 @@ export function AddChapter(){
                 isSubmit={isSubmit}
                 setIsSubmit={setIsSubmit}
                 predictGenre={predictGenre}
+                isLoading={isLoading}
+                setIsLoading={setIsLoading}
             />
             { hasContent ?
             <Card style={{borderColor:'white'}}>

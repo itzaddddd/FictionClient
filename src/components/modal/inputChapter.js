@@ -72,10 +72,12 @@ export function InputChapter(props){
         setValue,
         setContent,
         setIsSubmit,
-        predictGenre 
+        predictGenre,
+        setIsLoading 
     } = props 
 
     const onOk = () => {
+        setIsLoading(true)
         const currentData = JSON.parse(getSessionCookie('content'))
         let dataArray = []
         if(currentData){
@@ -117,7 +119,8 @@ export function InputChapter(props){
 
     const onChange = e => {
         setValue(e.target.value)
-        if(value.length < 1000) setIsShowError(true)
+        console.log(e.target.value.length)
+        if(e.target.value.length < 1000) setIsShowError(true)
         else setIsShowError(false)
     }
 
