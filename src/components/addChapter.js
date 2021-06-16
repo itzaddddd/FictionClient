@@ -112,7 +112,7 @@ const SpinStyle = styled(Spin)`
 
 const ConditionStyle = styled(Card)`
     margin: 0 auto;
-    width: 30%;
+    width: 40%;
     text-align: center;
     border-color: white;
     border-radius: 0.5em;
