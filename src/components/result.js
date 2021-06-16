@@ -41,7 +41,7 @@ const ChartTopic = styled.div`
     padding: 0.2em;
     border-radius: 0.5em;
     font-size: 1.5em;
-    width: 30%;
+    width: 50%;
     text-align: center;
     :hover{
       background-color: var(--color-menu-bg-main);

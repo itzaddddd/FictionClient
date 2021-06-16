@@ -315,7 +315,7 @@ export function AddChapter(){
             <Topic>
                 <TitleStyle style={{color:'white'}}>เพิ่มตอน</TitleStyle>
             </Topic>
-            <ConditionStyle>กรุณาเพิ่มตอนอย่างน้อย 2 ตอน แต่ละตอนยาวอย่างน้อย 1000 ตัวอักษร</ConditionStyle>
+            <ConditionStyle>ในแต่ละตอนควรมีความยาวอย่างน้อย 1000 ตัวอักษร</ConditionStyle>
             <ButtonGroupStyle>
                 <Space size={30} direction="vertical" style={{width: '100%'}} align="center">
                     <ButtonInput icon={<MessageOutlined />} onClick={showModal}>เพิ่มด้วยข้อความ</ButtonInput>
