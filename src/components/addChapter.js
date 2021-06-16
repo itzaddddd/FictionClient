@@ -157,15 +157,18 @@ export function AddChapter(){
         }
         const headers = {
             'Content-Type': 'application/json;charset=UTF-8',
+            'Access-Control-Allow-Origin':'*',
+            'Access-Control-Allow-Headers':'*',
+            'Access-Control-Allow-Methods':'*',
         }
         await Axios({
             method: 'POST',
-            url: `${FIC_DOMAIN}/fic`,
+            url: `${FIC_DOMAIN}/predict`,
             data: data,
             headers: headers
         }) 
-        .then( res => {
-            const result = res.data.data
+        .then(async res => {
+            const result = await res.data
             const currentResult = JSON.parse(getSessionCookie('result'))
             let resultArray = []
             if(currentResult){
@@ -185,6 +188,7 @@ export function AddChapter(){
             const resultArrayStr = JSON.stringify(resultArray)
             setSessionCookie('result', resultArrayStr)
             .then(res => {
+
             })
             .catch(err => {
                 alert(err)
@@ -240,9 +244,9 @@ export function AddChapter(){
         if(fileList.length > 0){
             for(let i in fileList){
                 await readChapterFile(fileList[i])
-                .then(res => {
+                .then(async res => {
                     setValue(res)
-                    predictGenre(res)
+                    await predictGenre(res)
                 })
                 .catch(err => alert(err))
             }
@@ -250,9 +254,9 @@ export function AddChapter(){
         if(folder.length > 0){
             for(let i in folder){
                 await readChapterFile(folder[i])
-                .then(res => {
+                .then(async res => {
                     setValue(res)
-                    predictGenre(res)
+                    await predictGenre(res)
                 })
                 .catch(err => alert(err))
             }

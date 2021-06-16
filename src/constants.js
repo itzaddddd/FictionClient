@@ -1,1 +1,1 @@
-export const FIC_DOMAIN = 'https://fiction-gene-server.herokuapp.com'
+export const FIC_DOMAIN = 'https://fiction-gene-model.herokuapp.com'

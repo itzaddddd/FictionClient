@@ -183,7 +183,7 @@ export function Result() {
       }
       const probData = []
       for(let i in result){
-        let probArr = result[parseInt(i)].result
+        let probArr = result[+i].result
         probArr.forEach(arr => probSum[arr['genre']] += arr['prob']/result.length)
       }
       for(let genre in probSum){
