@@ -226,7 +226,7 @@ export function Result() {
         <text
           x={x}
           y={y}
-          fontSize='1.2vh'
+          fontSize='1vh'
           fill={line.color}
           textAnchor={x>cx?"start":"end"}
           dominantBaseline="central"
